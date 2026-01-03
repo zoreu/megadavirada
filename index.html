@@ -106,10 +106,38 @@ def gerar_jogo(sd_gap, excluir_hist):
     while True:
         gaps = [_sample_gap(m, sd_gap) for m in GAP_MEANS]
         span = sum(gaps)
-        if span >= 60:
+
+        max_a1 = 60 - span
+        if max_a1 < 1:
             continue
 
-        a1 = random.randint(1, 60 - span)
+        # ---------- escolha balanceada do primeiro número ----------
+        faixas = []
+
+        if max_a1 >= 1:
+            faixas.append((1, min(9, max_a1), 0.35))
+        if max_a1 >= 10:
+            faixas.append((10, min(19, max_a1), 0.40))
+        if max_a1 >= 20:
+            faixas.append((20, max_a1, 0.25))
+
+        # remove faixas inválidas
+        faixas = [f for f in faixas if f[0] <= f[1]]
+        if not faixas:
+            continue
+
+        # escolhe faixa pelo peso
+        r = random.random()
+        acc = 0
+        for start, end, peso in faixas:
+            acc += peso
+            if r <= acc:
+                a1 = random.randint(start, end)
+                break
+        else:
+            a1 = random.randint(1, max_a1)
+        # -----------------------------------------------------------
+
         jogo = [a1]
         for g in gaps:
             jogo.append(jogo[-1] + g)
@@ -120,6 +148,7 @@ def gerar_jogo(sd_gap, excluir_hist):
             continue
 
         return jogo
+
 
 # ----------------------------
 # UI
